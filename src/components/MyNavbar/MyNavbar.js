@@ -20,7 +20,7 @@ class MyNavbar extends React.Component {
     return (
       <div className="MyNavbar">
         <nav className="navbar navbar-expand-lg navbar-light bg-danger">
-          <a className="navbar-brand" href="#">React Pinterest</a>
+          <h4>React Pinterest</h4>
           <button className="navbar-toggler" type="button">
             <span className="navbar-toggler-icon"></span>
           </button>
