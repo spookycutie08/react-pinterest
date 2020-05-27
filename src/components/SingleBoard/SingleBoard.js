@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import './SingleBoard.scss';
 
 import Pin from '../Pin/Pin';
+import PinForm from '../PinForm/PinForm';
 import boardsData from '../../helpers/data/boardsData';
 import pinsData from '../../helpers/data/pinsData';
 
@@ -16,6 +17,7 @@ class SingleBoard extends React.Component {
   state = {
     board: {},
     pins: [],
+    formOpen: false,
   }
 
   getInfo = () => {
@@ -42,10 +44,19 @@ class SingleBoard extends React.Component {
       .catch((err) => console.error('could not delete pin:', err));
   };
 
+  saveNewPin = (pinObject) => {
+    pinsData.savePin(pinObject)
+      .then(() => {
+        this.getInfo();
+        this.setState({ formOpen: false });
+      })
+      .catch((err) => console.error('could not make new pin: ', err));
+  };
+
 
   render() {
-    const { setSingleBoard } = this.props;
-    const { board, pins } = this.state;
+    const { setSingleBoard, boardId } = this.props;
+    const { board, pins, formOpen } = this.state;
 
     const makePins = pins.map((p) => <Pin key="p.id" pin={p} removePin={this.removePin}/>);
 
@@ -54,6 +65,9 @@ class SingleBoard extends React.Component {
         <h2>SINGLE BOARD VIEW</h2>
         <button className="btn btn-dark" onClick={() => { setSingleBoard(''); }} >Close</button>
         <h2>{board.name} Board</h2>
+        <h3>{board.description}</h3>
+        <button className="btn btn-success" onClick={() => this.setState({ formOpen: true })}>Add New Pin</button>
+        { formOpen ? <PinForm boardId={boardId} saveNewPin={this.saveNewPin}/> : ''}
         <div className="d-flex flex-wrap">
           {makePins}
         </div>
