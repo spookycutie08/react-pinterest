@@ -7,11 +7,21 @@ import authData from '../../helpers/data/authData';
 class BoardForm extends React.Component {
   static propTypes = {
     saveNewBoard: PropTypes.func.isRequired,
+    putBoard: PropTypes.func.isRequired,
+    board: PropTypes.object.isRequired,
   }
 
   state = {
     boardName: '',
     boardDescription: '',
+    isEditing: false,
+  }
+
+  componentDidMount() {
+    const { board } = this.props;
+    if (board.name) {
+      this.setState({ boardName: board.name, boardDescription: board.description, isEditing: true });
+    }
   }
 
   nameChange = (e) => {
@@ -34,8 +44,20 @@ class BoardForm extends React.Component {
     this.props.saveNewBoard(newBoardObject);
   };
 
+  updateBoard = (e) => {
+    e.preventDefault();
+    const { board, putBoard } = this.props;
+    const { boardDescription, boardName } = this.state;
+    const updatedBoard = {
+      description: boardDescription,
+      name: boardName,
+      uid: authData.getUid(),
+    };
+    putBoard(board.id, updatedBoard);
+  };
+
   render() {
-    const { boardName, boardDescription } = this.state;
+    const { boardName, boardDescription, isEditing } = this.state;
 
     return (
       <div className="BoardForm">
@@ -56,7 +78,10 @@ class BoardForm extends React.Component {
             <label htmlFor="board-desc">Description</label>
             <input type="text" className="form-control" id="board-desc" placeholder="Tell us about it" value={boardDescription} onChange={this.descriptionChange}/>
           </div>
-          <button type="submit" className="btn btn-info" onClick={this.saveBoard}>Save Board</button>
+          { isEditing
+            ? <button type="submit" className="btn btn-info" onClick={this.updateBoard}>Update Board</button>
+            : <button type="submit" className="btn btn-info" onClick={this.saveBoard}>Save Board</button>
+          }
         </form>
       </div>
     );

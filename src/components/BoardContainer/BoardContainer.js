@@ -18,6 +18,7 @@ class BoardContainer extends React.Component {
   state = {
     boards: [],
     formOpen: false,
+    editBoard: {},
   }
 
   getAllBoards = () => {
@@ -46,17 +47,30 @@ class BoardContainer extends React.Component {
       .catch((err) => console.error('could not add new board:', err));
   };
 
+  putBoard = (boardId, boardObject) => {
+    boardsData.updateBoard(boardId, boardObject)
+      .then(() => {
+        this.getAllBoards();
+        this.setState({ formOpen: false, editABoard: {} });
+      })
+      .catch((err) => console.error('problem with putBoard:', err));
+  };
+
+  editABoard = (board) => {
+    this.setState({ formOpen: true, editBoard: board });
+  };
+
   render() {
-    const { boards, formOpen } = this.state;
+    const { boards, formOpen, editBoard } = this.state;
     const { setSingleBoard } = this.props;
-    const makeBoards = boards.map((board) => <Board key={board.id} board={board} setSingleBoard={setSingleBoard} removeBoard={this.removeBoard}/>);
+    const makeBoards = boards.map((board) => <Board key={board.id} board={board} editABoard={this.editABoard} setSingleBoard={setSingleBoard} removeBoard={this.removeBoard}/>);
 
     return (
       <div className="BoardContainer">
         <h2>Boards</h2>
         <button className="btn btn-info" onClick={() => this.setState({ formOpen: true })}>Add New Board</button>
         {/* this line above was written in-line function for formOpen, but could be called from elsewhere */}
-        { formOpen ? <BoardForm saveNewBoard={this.saveNewBoard} /> : ''}
+        { formOpen ? <BoardForm saveNewBoard={this.saveNewBoard} board={editBoard} putBoard={this.putBoard}/> : ''}
         <div className="d-flex flex-wrap">
             {makeBoards}
         </div>

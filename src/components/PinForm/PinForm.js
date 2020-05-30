@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { object } from 'prop-types';
 
 import './PinForm.scss';
 import authData from '../../helpers/data/authData';
@@ -8,11 +8,21 @@ class PinForm extends React.Component {
   static propTypes = {
     boardId: PropTypes.string.isRequired,
     saveNewPin: PropTypes.func.isRequired,
+    putPin: PropTypes.func.isRequired,
+    pin: PropTypes.object.isRequired,
   }
 
   state = {
     pinTitle: '',
     pinImageUrl: '',
+    isEditing: false,
+  }
+
+  componentDidMount() {
+    const { pin } = this.props;
+    if (pin.title) {
+      this.setState({ pinTitle: pin.title, pinImageUrl: pin.imageUrl, isEditing: true });
+    }
   }
 
   nameChange = (e) => {
@@ -38,8 +48,21 @@ class PinForm extends React.Component {
     saveNewPin(newPinObject);
   };
 
+  updatePin = (e) => {
+    e.preventDefault();
+    const { pinImageUrl, pinTitle } = this.state;
+    const { boardId, putPin, pin } = this.props;
+    const updatedPinObj = {
+      boardId,
+      title: pinTitle,
+      imageUrl: pinImageUrl,
+      uid: authData.getUid(),
+    };
+    putPin(pin.id, updatedPinObj);
+  };
+
   render() {
-    const { pinTitle, pinImageUrl } = this.state;
+    const { pinTitle, pinImageUrl, isEditing } = this.state;
 
     return (
       <div className="PinForm">
@@ -60,7 +83,12 @@ class PinForm extends React.Component {
             <label htmlFor="pin-desc">Image URL</label>
             <input type="text" className="form-control" id="pin-desc" placeholder="Tell us about it" value={pinImageUrl} onChange={this.descriptionChange}/>
           </div>
-          <button type="submit" className="btn btn-info" onClick={this.savePin}>Save Pin</button>
+          {
+          isEditing
+            ? <button type="submit" className="btn btn-info" onClick={this.updatePin}>Update Pin</button>
+            : <button type="submit" className="btn btn-info" onClick={this.savePin}>Save Pin</button>
+
+          }
         </form>
       </div>
     );
